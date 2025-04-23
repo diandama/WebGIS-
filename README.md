@@ -1,2 +1,2 @@
 # WebGIS-
-Lokakasi Pesantren Almunawwir
+Lokasi Pesantren Almunawwir
