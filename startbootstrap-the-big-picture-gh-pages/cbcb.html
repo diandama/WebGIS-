@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jenis dan Contoh Peta</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+  <style>
+    #map { height: 400px; }
+    img { max-width: 100%; height: auto; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+<div class="container mt-4">
+  <h1 class="mb-4">Jenis dan Contoh Peta</h1>
+
+  <h3>1. Peta Statis</h3>
+  <p>Peta statis adalah peta yang ditampilkan dalam bentuk gambar atau cetakan dan tidak bisa diinteraksikan secara langsung oleh pengguna.</p>
+  <img src="https://labs.line-45.com/openspaces/WildOpenSpaces.png" alt="Contoh Peta Statis" class="mb-4">
+
+  <h3>2. Peta Dinamis</h3>
+  <p>Peta dinamis adalah peta interaktif yang memungkinkan pengguna untuk memperbesar, memperkecil, dan menggeser tampilan peta.</p>
+  <div id="map" class="mb-4"></div>
+
+  <div class="d-flex flex-column flex-sm-row gap-2">
+    <button id="btnBogor" class="btn btn-primary">Fly to Bogor</button>
+    <button id="btnKrapyak" class="btn btn-danger">Lokasi Pesantren</button>
+  </div>
+</div>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1IjoiYW1yaW5yaWZha2kiLCJhIjoiY2xqNHI1MnljMDB2czNwbzVrZXJpc3B1aCJ9.VPD_-LqbdRI5hNnwbftmTQ';
+
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [106.816666, -6.6], // Default center Indonesia
+    zoom: 5
+  });
+
+  map.on('load', () => {
+    // Marker: Bogor
+    new mapboxgl.Marker({ color: 'blue' })
+      .setLngLat([106.816666, -6.6])
+      .setPopup(new mapboxgl.Popup().setHTML("<strong>Bogor</strong>"))
+      .addTo(map);
+
+    // Marker: Pesantren Krapyak
+    new mapboxgl.Marker({ color: 'red' })
+      .setLngLat([110.344429, -7.826406])
+      .setPopup(new mapboxgl.Popup().setHTML("<strong>Lokasi Pesantren Krapyak</strong>"))
+      .addTo(map);
+  });
+
+  document.getElementById('btnBogor').addEventListener('click', () => {
+    map.flyTo({ center: [106.816666, -6.6], zoom: 14, speed: 0.8 });
+  });
+
+  document.getElementById('btnKrapyak').addEventListener('click', () => {
+    map.flyTo({ center: [110.344429, -7.826406], zoom: 17, speed: 0.8 });
+  });
+</script>
+</body>
+</html>

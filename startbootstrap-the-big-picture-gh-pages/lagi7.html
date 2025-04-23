@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Lokasi Pesantren Krapyak</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Mapbox -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet" />
+
+  <!-- Mapbox Directions -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" type="text/css" />
+
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+
+    .petunjuk {
+      width: 320px;
+      background-color: #f9f9f9;
+      padding: 20px;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .petunjuk ol {
+      padding-left: 20px;
+    }
+
+    .lokasi-btn {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: bold;
+      border-radius: 3px;
+    }
+
+    #map {
+      flex-grow: 1;
+      position: relative;
+      border: 4px solid #444; /* garis tepi peta */
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .legend {
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      font-size: 14px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="petunjuk">
+    <strong>Petunjuk</strong>
+    <ol>
+      <li>Gunakan tombol zoom in ➕, zoom out ➖, dan reset bearing to north 🧭 untuk mengatur posisi peta.</li>
+      <li>Titik biru bertuliskan huruf "A" merupakan titik lokasi Anda.</li>
+      <li>Klik tombol <button class="lokasi-btn" onclick="flyToPesantren()">Lokasi Pesantren</button> untuk menampilkan lokasi Pondok Pesantren Al-Munawwir.</li>
+      <li>Klik salah satu bangunan sebagai tujuan destinasi.</li>
+      <li>Rute ditampilkan sebagai garis biru pada peta.</li>
+    </ol>
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZGlhbmRhbWEiLCJhIjoiY205bDY0M24yMDFrbDJsczdmbmV1dW1tciJ9.krqM8UOqxAKm-korQeJn3g';
+
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [110.3589, -7.8052],
+      zoom: 13
+    });
+
+    const directions = new MapboxDirections({
+      accessToken: mapboxgl.accessToken,
+      unit: 'metric',
+      profile: 'mapbox/driving',
+      interactive: true,
+      alternatives: true,
+      controls: { instructions: false }
+    });
+
+    map.addControl(directions, 'top-left');
+
+    function flyToPesantren() {
+      map.flyTo({
+        center: [110.3589, -7.8052],
+        zoom: 15
+      });
+    }
+
+    // Marker Bangunan
+    const geojson = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: { title: 'Asrama Putra', type: 'putra' },
+          geometry: { type: 'Point', coordinates: [110.3589, -7.8055] }
+        },
+        {
+          type: 'Feature',
+          properties: { title: 'Asrama Putri', type: 'putri' },
+          geometry: { type: 'Point', coordinates: [110.3592, -7.8053] }
+        },
+        {
+          type: 'Feature',
+          properties: { title: 'Bangunan Umum', type: 'umum' },
+          geometry: { type: 'Point', coordinates: [110.3588, -7.8050] }
+        }
+      ]
+    };
+
+    map.on('load', () => {
+      for (const feature of geojson.features) {
+        const el = document.createElement('div');
+        el.className = 'marker';
+        el.style.width = '16px';
+        el.style.height = '16px';
+        el.style.borderRadius = '50%';
+
+        if (feature.properties.type === 'putra') {
+          el.style.backgroundColor = '#003f5c';
+        } else if (feature.properties.type === 'putri') {
+          el.style.backgroundColor = '#bc5090';
+        } else {
+          el.style.backgroundColor = '#ffa600';
+        }
+
+        new mapboxgl.Marker(el)
+          .setLngLat(feature.geometry.coordinates)
+          .setPopup(new mapboxgl.Popup().setText(feature.properties.title))
+          .addTo(map);
+      }
+
+      // Tambahkan legenda
+      const legend = document.createElement('div');
+      legend.className = 'legend';
+      legend.innerHTML = `
+        <strong>Legenda</strong>
+        <div class="legend-item"><div class="legend-color" style="background:#003f5c"></div> Asrama Putra</div>
+        <div class="legend-item"><div class="legend-color" style="background:#bc5090"></div> Asrama Putri</div>
+        <div class="legend-item"><div class="legend-color" style="background:#ffa600"></div> Bangunan Umum</div>
+      `;
+      map.getContainer().appendChild(legend);
+    });
+  </script>
+</body>
+</html>
